@@ -1,6 +1,6 @@
 {
   "name": "@appgeist/restful-next-api",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Build restful API methods for Next.js > 9 and validate the incoming requests with yup",
   "keywords": [
     "rest",
@@ -23,7 +23,7 @@
   },
   "license": "ISC",
   "devDependencies": {
-    "@appgeist/eslint-config-base": "^1.0.4",
+    "@appgeist/eslint-config-base": "^1.0.5",
     "@types/http-status-codes": "^1.2.0",
     "@types/yup": "^0.26.21"
   },
