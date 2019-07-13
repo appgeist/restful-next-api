@@ -1,4 +1,4 @@
-# [@appgeist/restful-next-api](https://github.com/appgeist/restful-next-api)
+# @appgeist/restful-next-api
 
 [![NPM version][npm-image]][npm-url]
 [![License][license-image]][license-url]
