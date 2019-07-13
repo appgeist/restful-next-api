@@ -174,6 +174,10 @@ JsDocs are provided for improved IDE support.
 
    Other error types are treated as `500` / `INTERNAL_SERVER_ERROR` and are logged to the console.
 
+## License
+
+The [ISC License](LICENSE).
+
 [npm-image]: https://img.shields.io/npm/v/@appgeist/restful-next-api.svg?style=flat-square
 [npm-url]: https://www.npmjs.com/package/@appgeist/restful-next-api
 [license-image]: https://img.shields.io/npm/l/@appgeist/restful-next-api.svg?style=flat-square
