@@ -1,2 +1,2 @@
-exports.rest = require('./rest');
+module.exports = require('./methods');
 exports.ApiError = require('./ApiError');

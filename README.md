@@ -20,12 +20,12 @@ In `/pages/api/products.js`:
 
 ```js
 import { object, number, string } from "yup";
-import { rest } from "@appgeist/restful-next-api";
+import methods from "@appgeist/restful-next-api";
 import { Product, User } from "~/models";
 import { log } from "~/utils";
 
-export default rest({
-  GET: {
+export default methods({
+  get: {
     querySchema: object({
       page: number()
         .integer()
@@ -33,10 +33,10 @@ export default rest({
         .required()
     }),
 
-    handleRequest: ({ query: { page } }) => Product.browse({ page })
+    handler: ({ query: { page } }) => Product.browse({ page })
   },
 
-  POST: {
+  post: {
     bodySchema: object({
       name: string()
         .min(5)
@@ -56,7 +56,7 @@ export default rest({
         .required()
     }).noUnknown(),
 
-    handleRequest: async ({ body, req }) => {
+    handler: async ({ body, req }) => {
       const product = await Product.create(body);
       await log(
         `Product ${product.id} created at ${new Date()} by user ${req.userId}`
@@ -72,18 +72,19 @@ In `/pages/api/products/[id].js`:
 ```js
 import { object, number, string } from "yup";
 import { FORBIDDEN } from "http-status-codes";
-import { rest } from "@appgeist/restful-next-api";
+import methods, { ApiError } from "@appgeist/restful-next-api";
 import { Product } from "~/models";
 import { log } from "~/utilities";
 
 export default rest({
-  PATCH: {
+  patch: {
     querySchema: object({
       id: number()
         .integer()
         .positive()
         .required()
     }),
+
     bodySchema: object({
       name: string()
         .min(5)
@@ -103,7 +104,7 @@ export default rest({
         .required()
     }).noUnknown(),
 
-    handleRequest: async ({ body, req }) => {
+    handler: async ({ body, req }) => {
       const product = await Product.create(body);
       await log(
         `Product ${product.id} updated at ${new Date()} by user ${req.userId}`
@@ -112,7 +113,7 @@ export default rest({
     }
   },
 
-  DELETE: {
+  delete: {
     querySchema: object({
       id: number()
         .integer()
@@ -120,7 +121,7 @@ export default rest({
         .required()
     }),
 
-    handleRequest: async ({ query: { id }, req }) => {
+    handler: async ({ query: { id }, req }) => {
       const { userId } = req;
       const acl = await User.getACL(userId);
       if (!acl.includes("deleteProduct")) throw new ApiError(FORBIDDEN);
@@ -149,27 +150,31 @@ JsDocs are provided for improved IDE support.
    }
    ```
 
-   - If validation succeeds, the `handleRequest` method will be invoked.
+   - If validation succeeds, the `handler` method will be invoked.
 
-2. The `handleRequest` method:
+2. The `handler` method:
 
    ```js
-   handleRequest({ query, body, req }) => { /* ... */ };
+   handler({ query, body, req }) => { /* ... */ };
    ```
 
-   This method can return an object or a Promise resolving to an object that will be serialized to `JSON` and sent back to the client with a `200` (`OK`) status code. If `handleRequest` returns `undefined` or `null`, an empty response will be sent with a `201` (`CREATED`) header for `POST` requests and `204` (`NO_CONTENT`) for non-`POST` request.
+   This method can return an object or a Promise resolving to an object that will be serialized to `JSON` and sent back to the client with a `200` (`OK`) status code. If `handler` returns `undefined` or `null`, an empty response will be sent with a `201` (`CREATED`) header for `POST` requests and `204` (`NO_CONTENT`) for non-`POST` request.
 
-   If `handleRequest` throws an `ApiError` (exported by `@appgeist/restful-next-api`), a specific http status code is returned to the client. For instance, the following code will result in a `404` (`NOT_FOUND`) being sent to the client:
+   If `handler` throws an `ApiError` (also exported by `@appgeist/restful-next-api`), a specific http status code is returned to the client. For instance, the following code will result in a `404` (`NOT_FOUND`) being sent to the client:
 
    ```js
-   import { ApiError } from '@appgeist/restful-next-api';
+   import { methods, ApiError } from '@appgeist/restful-next-api';
    import { NOT_FOUND } from 'http-status-codes';
 
-   handleRequest() => {
-     // ...
-     throw new ApiError(NOT_FOUND);
-     // ...
-   }
+   export default methods({
+     get: {
+       handler = () => {
+         // ...
+         throw new ApiError(NOT_FOUND);
+         // ...
+       }
+     }
+   })
    ```
 
    Other error types are treated as `500` / `INTERNAL_SERVER_ERROR` and are logged to the console.

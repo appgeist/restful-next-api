@@ -1,9 +1,3 @@
 {
-  "extends": "@appgeist/eslint-config-base",
-  "rules": {
-    "import/no-unresolved": [
-      "error",
-      { "ignore": ["^yup$", "^http-status-codes$"] }
-    ]
-  }
+  "extends": "@appgeist/eslint-config-base"
 }
