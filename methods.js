@@ -37,10 +37,10 @@ module.exports = options => async (req, res) => {
     const handler = typeof method === 'function' ? method : method.handler;
     const { querySchema, bodySchema } = method;
 
-    if (isSchema(querySchema) || isSchema(bodySchema)) {
+    if (querySchema || bodySchema) {
       ({ query, body } = await object({
-        query: querySchema,
-        body: bodySchema
+        query: isSchema(querySchema) ? querySchema : object(querySchema),
+        body: isSchema(bodySchema) ? bodySchema : object(bodySchema)
       }).validate({ query, body }, { abortEarly: false }));
     }
 
@@ -74,8 +74,8 @@ module.exports = options => async (req, res) => {
 
 /**
  * @typedef {Object} QueryAndBodyMethodOptions
- * @property {import('yup').ObjectSchema} options.get.querySchema Yup schema to validate the request query
- * @property {import('yup').ObjectSchema} options.get.bodySchema Yup schema to validate the request body
+ * @property {object|import('yup').ObjectSchema} options.get.querySchema Yup schema to validate the request query
+ * @property {object|import('yup').ObjectSchema} options.get.bodySchema Yup schema to validate the request body
  * @property {RequestHandlerFunction} options.get.handler Request handler
  */
 
