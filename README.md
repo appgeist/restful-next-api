@@ -25,15 +25,7 @@ import { Product, User } from "~/models";
 import { log } from "~/utils";
 
 export default methods({
-  get: {
-    querySchema: object({
-      page: number()
-        .integer()
-        .positive()
-        .required()
-    }),
-
-    handler: ({ query: { page } }) => Product.browse({ page })
+  get: ({ query: { page } }) => Product.browse({ page })
   },
 
   post: {
@@ -163,18 +155,16 @@ JsDocs are provided for improved IDE support.
    If `handler` throws an `ApiError` (also exported by `@appgeist/restful-next-api`), a specific http status code is returned to the client. For instance, the following code will result in a `404` (`NOT_FOUND`) being sent to the client:
 
    ```js
-   import { methods, ApiError } from '@appgeist/restful-next-api';
-   import { NOT_FOUND } from 'http-status-codes';
+   import { methods, ApiError } from "@appgeist/restful-next-api";
+   import { NOT_FOUND } from "http-status-codes";
 
    export default methods({
-     get: {
-       handler = () => {
-         // ...
-         throw new ApiError(NOT_FOUND);
-         // ...
-       }
+     get: () => {
+       // ...
+       throw new ApiError(NOT_FOUND);
+       // ...
      }
-   })
+   });
    ```
 
    Other error types are treated as `500` / `INTERNAL_SERVER_ERROR` and are logged to the console.

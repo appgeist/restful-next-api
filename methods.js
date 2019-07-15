@@ -14,29 +14,22 @@ const ApiError = require('./ApiError');
  * Build restful API request handlers
  *
  * @param {Object} options Restful API request handlers config
- * @param {Object} options.get Config object describing how GET requests are processed
- * @param {import('yup').ObjectSchema} options.get.querySchema Yup schema to validate the query of GET requests
- * @param {RequestHandlerFunction} options.get.handler Method to process the GET requests
- * @param {Object} options.put Config object describing how PUT requests are processed
- * @param {import('yup').ObjectSchema} options.put.querySchema Yup schema to validate the query of PUT requests
- * @param {import('yup').ObjectSchema} options.put.bodySchema Yup schema to validate the body of PUT requests
- * @param {RequestHandlerFunction} options.put.handler Method to process the PUT requests
- * @param {Object} options.post Config object describing how POST requests are processed
- * @param {import('yup').ObjectSchema} options.post.querySchema Yup schema to validate the query of POST requests
- * @param {import('yup').ObjectSchema} options.post.bodySchema Yup schema to validate the body of POST requests
- * @param {RequestHandlerFunction} options.post.handler Method to process POST requests
- * @param {Object} options.patch Config object describing how PATCH requests are processed
- * @param {import('yup').ObjectSchema} options.patch.querySchema Yup schema to validate the query of PATCH requests
- * @param {import('yup').ObjectSchema} options.patch.bodySchema Yup schema to validate the body of PATCH requests
- * @param {RequestHandlerFunction} options.patch.handler Method to process PATCH requests
- * @param {Object} options.delete Config object describing how DELETE requests are processed
- * @param {import('yup').ObjectSchema} options.delete.querySchema Yup schema to validate the query of DELETE requests
- * @param {RequestHandlerFunction} options.delete.handler Methos to process DELETE requests
+ * @param {RequestHandlerFunction|QueryMethodOptions} options.get Config object describing
+ *    how GET requests are processed
+ * @param {RequestHandlerFunction|QueryAndBodyMethodOptions} options.put Config object describing
+ *    how PUT requests are processed
+ * @param {RequestHandlerFunction|QueryAndBodyMethodOptions} options.post Config object describing
+ *    how POST requests are processed
+ * @param {RequestHandlerFunction|QueryAndBodyMethodOptions} options.patch Config object describing
+ *    how PATCH requests are processed
+ * @param {RequestHandlerFunction|QueryMethodOptions} options.delete Config object describing
+ *    how DELETE requests are processed
  */
 module.exports = options => async (req, res) => {
   try {
     const methodName = req.method.toLowerCase();
     const method = options[methodName];
+
     if (!method) throw new ApiError(METHOD_NOT_ALLOWED);
 
     let { query, body } = req;
@@ -72,6 +65,19 @@ module.exports = options => async (req, res) => {
     }
   }
 };
+
+/**
+ * @typedef {Object} QueryMethodOptions
+ * @property {import('yup').ObjectSchema} options.get.querySchema Yup schema to validate the request query
+ * @property {RequestHandlerFunction} options.get.handler Request handler
+ */
+
+/**
+ * @typedef {Object} QueryAndBodyMethodOptions
+ * @property {import('yup').ObjectSchema} options.get.querySchema Yup schema to validate the request query
+ * @property {import('yup').ObjectSchema} options.get.bodySchema Yup schema to validate the request body
+ * @property {RequestHandlerFunction} options.get.handler Request handler
+ */
 
 /**
  * @callback RequestHandlerFunction
