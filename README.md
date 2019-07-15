@@ -14,7 +14,7 @@ Build restful [API methods for Next.js > 9](https://nextjs.org/docs#api-routes) 
 - Install with `npm i @appgeist/restful-next-api` or `yarn add @appgeist/restful-next-api`;
 - Run `npx install-peerdeps -do @appgeist/restful-next-api` to make sure you have the necessary `peerDependencies` (`yup` and `http-status-codes`) in your project.
 
-## Usage examples
+## Usage example
 
 In `/pages/api/products.js`:
 
@@ -69,12 +69,12 @@ import { log } from "~/utilities";
 
 export default rest({
   patch: {
-    querySchema: object({
+    querySchema: {
       id: number()
         .integer()
         .positive()
         .required()
-    }),
+    },
 
     bodySchema: object({
       name: string()
@@ -105,12 +105,12 @@ export default rest({
   },
 
   delete: {
-    querySchema: object({
+    querySchema: {
       id: number()
         .integer()
         .positive()
         .required()
-    }),
+    },
 
     handler: async ({ query: { id }, req }) => {
       const { userId } = req;
@@ -123,11 +123,19 @@ export default rest({
 });
 ```
 
-JsDocs are provided for improved IDE support.
+Each method can be:
+
+- a request handler function (see details below)
+- an object shaped like so: `{ querySchema, bodySchema, handler }`.
+
+A `querySchema`/`bodySchema` definition can be:
+
+- a simple JS object for brevity (the object will be converted automatically to a yup schema)
+- a yup schema (for complex scenarios when you need to add a `.noUnknown()` modifier)
 
 ## Request flow
 
-1. The data for each request is validated (and transformed) according to the `querySchema` and `bodySchema` definitions. See `yup` [readme](https://github.com/jquense/yup) for more information on data validation and transformation.
+1. The data for each request is validated (and transformed) according to the specified `querySchema` and `bodySchema` definitions. See `yup` [readme](https://github.com/jquense/yup) for more information on data validation and transformation.
 
    - **If validation fails, the request handler invocation is skipped** and a `400` (`BAD_REQUEST`) response is sent to the client with a `JSON` body type structured like so:
 
@@ -146,7 +154,13 @@ JsDocs are provided for improved IDE support.
 2. The `handler` method:
 
    ```js
-   handler({ query, body, req }) => { /* ... */ };
+   function handler({ query, body, req }) => { /* do work and return data */ };
+   ```
+
+   ...or
+
+   ```js
+   async function handler({ query, body, req }) => { /* do work and return Promise which resolves to data */ };
    ```
 
    This method can return an object or a Promise resolving to an object that will be serialized to `JSON` and sent back to the client with a `200` (`OK`) status code. If `handler` returns `undefined` or `null`, an empty response will be sent with a `201` (`CREATED`) header for `POST` requests and `204` (`NO_CONTENT`) for non-`POST` request.
@@ -167,6 +181,8 @@ JsDocs are provided for improved IDE support.
    ```
 
    Other error types are treated as `500` / `INTERNAL_SERVER_ERROR` and are logged to the console.
+
+JsDocs are also provided for improved IDE support.
 
 ## License
 

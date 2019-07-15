@@ -14,16 +14,16 @@ const ApiError = require('./ApiError');
  * Build restful API request handlers
  *
  * @param {Object} options Restful API request handlers config
- * @param {RequestHandlerFunction|QueryMethodOptions} options.get Config object describing
- *    how GET requests are processed
- * @param {RequestHandlerFunction|QueryAndBodyMethodOptions} options.post Config object describing
- *    how POST requests are processed
- * @param {RequestHandlerFunction|QueryAndBodyMethodOptions} options.put Config object describing
- *    how PUT requests are processed
- * @param {RequestHandlerFunction|QueryAndBodyMethodOptions} options.patch Config object describing
- *    how PATCH requests are processed
- * @param {RequestHandlerFunction|QueryMethodOptions} options.delete Config object describing
- *    how DELETE requests are processed
+ * @param {RequestHandlerFunction|QueryMethodOptions} options.get Request handler or
+ *    config object describing how GET requests are processed
+ * @param {RequestHandlerFunction|QueryAndBodyMethodOptions} options.post Request handler or
+ *    config object describing how POST requests are processed
+ * @param {RequestHandlerFunction|QueryAndBodyMethodOptions} options.put Request handler or
+ *    config object describing how PUT requests are processed
+ * @param {RequestHandlerFunction|QueryAndBodyMethodOptions} options.patch Request handler or
+ *    config object describing how PATCH requests are processed
+ * @param {RequestHandlerFunction|QueryMethodOptions} options.delete Request handler or
+ *    config object describing how DELETE requests are processed
  */
 module.exports = options => async (req, res) => {
   try {
@@ -68,14 +68,23 @@ module.exports = options => async (req, res) => {
 
 /**
  * @typedef {Object} QueryMethodOptions
- * @property {import('yup').ObjectSchema} options.get.querySchema Yup schema to validate the request query
+ * @property {Object} options.get.querySchema Schema to validate the request query.
+ *    Can be:
+ *      - a plain JS object for brevity (in which case it will be converted to a yup object)
+ *      - a yup object for complex cases (i.e. when you need to add `.noUnknown()` modifier)
  * @property {RequestHandlerFunction} options.get.handler Request handler
  */
 
 /**
  * @typedef {Object} QueryAndBodyMethodOptions
- * @property {object|import('yup').ObjectSchema} options.get.querySchema Yup schema to validate the request query
- * @property {object|import('yup').ObjectSchema} options.get.bodySchema Yup schema to validate the request body
+ * @property {Object} options.get.querySchema Schema to validate the request query.
+ *    Can be:
+ *      - a plain JS object for brevity (in which case it will be converted to a yup object)
+ *      - a yup object for complex cases (i.e. when you need to add `.noUnknown()` modifier)
+ * @property {Object} options.get.bodySchema Schema to validate the request body.
+ *    Can be:
+ *      - a plain JS object for brevity (in which case it will be converted to a yup object)
+ *      - a yup object for complex cases (i.e. when you need to add `.noUnknown()` modifier)
  * @property {RequestHandlerFunction} options.get.handler Request handler
  */
 
