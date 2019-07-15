@@ -16,10 +16,10 @@ const ApiError = require('./ApiError');
  * @param {Object} options Restful API request handlers config
  * @param {RequestHandlerFunction|QueryMethodOptions} options.get Config object describing
  *    how GET requests are processed
- * @param {RequestHandlerFunction|QueryAndBodyMethodOptions} options.put Config object describing
- *    how PUT requests are processed
  * @param {RequestHandlerFunction|QueryAndBodyMethodOptions} options.post Config object describing
  *    how POST requests are processed
+ * @param {RequestHandlerFunction|QueryAndBodyMethodOptions} options.put Config object describing
+ *    how PUT requests are processed
  * @param {RequestHandlerFunction|QueryAndBodyMethodOptions} options.patch Config object describing
  *    how PATCH requests are processed
  * @param {RequestHandlerFunction|QueryMethodOptions} options.delete Config object describing
