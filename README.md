@@ -25,8 +25,7 @@ import { Product, User } from "~/models";
 import { log } from "~/utils";
 
 export default methods({
-  get: ({ query: { page } }) => Product.browse({ page })
-  },
+  get: ({ query: { page } }) => Product.browse({ page }),
 
   post: {
     bodySchema: object({
