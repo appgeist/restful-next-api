@@ -35,7 +35,7 @@ module.exports = options => async (req, res) => {
     let { query, body } = req;
 
     const handler = typeof method === 'function' ? method : method.handler;
-    const { querySchema, bodySchema } = handler;
+    const { querySchema, bodySchema } = method;
 
     if (isSchema(querySchema) || isSchema(bodySchema)) {
       ({ query, body } = await object({
