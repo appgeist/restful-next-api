@@ -49,7 +49,7 @@ module.exports = options => async (req, res) => {
     if (result === undefined || result === null) {
       res.status(method === 'POST' ? CREATED : NO_CONTENT).send(null);
     } else {
-      res.send(result);
+      res.json(result);
     }
   } catch (err) {
     if (err instanceof ValidationError) {
