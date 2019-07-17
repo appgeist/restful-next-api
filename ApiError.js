@@ -1,15 +1,26 @@
-const { getStatusText } = require('http-status-codes');
+const { INTERNAL_SERVER_ERROR, getStatusText } = require('http-status-codes');
 
 module.exports = class ApiError extends Error {
   /**
    * Creates an instance of ApiError
    *
-   * @param {number|ApiErrorOptions} options HTTP status code to respond with (defaults to 500), or an object
+   * @param {number|ApiErrorOptions} [options] HTTP status code to respond with (defaults to 500), or an object
    *    with code and message properties
    */
   constructor(options) {
-    const status = typeof options === 'number' ? options : options.status || 500;
-    super(options.message || getStatusText(status));
+    let status;
+    let message;
+    if (typeof options === 'object') {
+      ({ status, message } = options);
+      if (!message) message = getStatusText(status);
+    } else if (typeof options === 'number') {
+      status = options;
+      message = getStatusText(status);
+    } else {
+      status = INTERNAL_SERVER_ERROR;
+      message = getStatusText(INTERNAL_SERVER_ERROR);
+    }
+    super(message);
     this.name = this.constructor.name;
     this.httpStatusCode = status;
   }
@@ -17,7 +28,7 @@ module.exports = class ApiError extends Error {
 
 /**
  * @typedef {Object} ApiErrorOptions
- * @property {number} code HTTP status code to respond with
+ * @property {number} status HTTP status code to respond with
  * @property {string} message Custom message to respond with, defaults to standard message
  *    for the provided code, as defined by [http-status-codes](https://www.npmjs.com/package/http-status-codes)
  */

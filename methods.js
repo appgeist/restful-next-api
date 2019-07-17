@@ -56,8 +56,8 @@ module.exports = options => async (req, res) => {
       const { message, errors } = err;
       res.status(BAD_REQUEST).send({ message, errors });
     } else if (err instanceof ApiError) {
-      const { message } = err;
-      res.status(err.httpStatusCode).send({ message });
+      const { httpStatusCode, message } = err;
+      res.status(httpStatusCode).send({ message });
     } else {
       // eslint-disable-next-line no-console
       console.log(err.stack);
