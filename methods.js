@@ -39,8 +39,8 @@ module.exports = options => async (req, res) => {
 
     if (querySchema || bodySchema) {
       ({ query, body } = await object({
-        query: isSchema(querySchema) ? querySchema : object(querySchema),
-        body: isSchema(bodySchema) ? bodySchema : object(bodySchema)
+        query: querySchema ? (isSchema(querySchema) ? querySchema : object(querySchema)) : undefined,
+        body: bodySchema ? (isSchema(bodySchema) ? bodySchema : object(bodySchema)) : undefined
       }).validate({ query, body }, { abortEarly: false }));
     }
 

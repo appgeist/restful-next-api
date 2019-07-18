@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@appgeist/eslint-config-base@^1.1.0":
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/@appgeist/eslint-config-base/-/eslint-config-base-1.1.0.tgz#f335f0942dce676563632d2a0241aa4dc10a62ad"
-  integrity sha512-Pe63ELAzY2C4TvkExJbr1CxKkr5nogsx+POOmG7cNGRWFNIiPoyf02qd+XRV55jcoK189qvoBPbtINciaIbkeA==
+"@appgeist/eslint-config-base@^1.1.1":
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/@appgeist/eslint-config-base/-/eslint-config-base-1.1.1.tgz#bfa0e3460a649c2528d2005b8f5f0e8197f79808"
+  integrity sha512-DeN9Du+uFZEXdD5x4CXYVOBreDCqGWlk4tVNP8zs2nUuFwz1Z7tHzdjvjTgLawOmbxjh4rStMUkqDtiNjM4vKg==
   dependencies:
     babel-eslint "^10.0.2"
     eslint "^4.19.1"
