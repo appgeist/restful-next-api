@@ -3,6 +3,8 @@
 [![NPM version][npm-image]][npm-url]
 [![License][license-image]][license-url]
 
+![AppGeist Restful Next.js API](https://user-images.githubusercontent.com/581999/61737683-6782cf80-ad91-11e9-8c7d-703b9f6c7b9b.png)
+
 Build restful [API methods for Next.js > 9](https://nextjs.org/docs#api-routes) and validate the incoming requests with [yup](https://www.npmjs.com/package/yup).
 
 ## Why
