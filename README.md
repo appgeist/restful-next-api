@@ -69,7 +69,7 @@ import methods, { ApiError } from "@appgeist/restful-next-api";
 import { Product } from "~/models";
 import { log } from "~/utilities";
 
-export default rest({
+export default methods({
   patch: {
     querySchema: {
       id: number()
@@ -128,7 +128,7 @@ export default rest({
 Each method can be:
 
 - a request handler function (see details below)
-- an object shaped like so: `{ querySchema, bodySchema, handler }`.
+- an object shaped like so: `{ querySchema, bodySchema, handler, errorHandler }`.
 
 A `querySchema`/`bodySchema` definition can be:
 
@@ -167,6 +167,8 @@ A `querySchema`/`bodySchema` definition can be:
 
    This method can return an object or a Promise resolving to an object that will be serialized to `JSON` and sent back to the client with a `200` (`OK`) status code. If `handler` returns `undefined` or `null`, an empty response will be sent with a `201` (`CREATED`) header for `POST` requests and `204` (`NO_CONTENT`) for non-`POST` request.
 
+3. Default error handling
+
    If `handler` throws an `ApiError` (also exported by `@appgeist/restful-next-api`), a specific http status code is returned to the client. For instance, the following code will result in a `404` (`NOT_FOUND`) being sent to the client:
 
    ```js
@@ -184,7 +186,43 @@ A `querySchema`/`bodySchema` definition can be:
 
    Other error types are treated as `500` / `INTERNAL_SERVER_ERROR` and are logged to the console.
 
-JsDocs are also provided for improved IDE support.
+## Custom error handling
+
+You can override the default error handling mechanism by providing a custom error handling function like so:
+
+```js
+export default methods({
+  patch: {
+    // querySchema: ..., bodySchema: ...,
+    handler: ({ body, req }) => {
+      /* handle patch request */
+    },
+
+    // Error handler for patch requests
+    errorHandler: ({ res, err }) => {
+      res.status(500).send("Error while trying to patch");
+    }
+  },
+
+  delete: {
+    // querySchema: ...,
+    handler: ({ query: { id }, req }) => {
+      /* handle delete request */
+    }
+  },
+
+  // Generic error handler - this will also handle errors for delete requests
+  errorHandler: ({ res, err }) => {
+    res.status(500).send("Error");
+  }
+});
+```
+
+A specific method error handler takes precedence over the generic error handler.
+
+## IDE support
+
+JsDocs are provided for IDE support for now; an `index.d.ts` will be provided at some point in the future.
 
 ## License
 

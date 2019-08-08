@@ -1,35 +1,29 @@
-const {
-  INTERNAL_SERVER_ERROR,
-  METHOD_NOT_ALLOWED,
-  CREATED,
-  NO_CONTENT,
-  BAD_REQUEST,
-  getStatusText
-} = require('http-status-codes');
-const { object, isSchema, ValidationError } = require('yup');
+const { METHOD_NOT_ALLOWED, CREATED, NO_CONTENT } = require('http-status-codes');
+const { object, isSchema } = require('yup');
 
 const ApiError = require('./ApiError');
+const defaultErrorHandler = require('./defaultErrorHandler');
 
 /**
  * Build restful API request handlers
  *
  * @param {Object} options Restful API request handlers config
- * @param {RequestHandlerFunction|QueryMethodOptions} options.get Request handler or
+ * @param {RequestHandlerFunction|MethodOptions} [options.get] Request handler function or
  *    config object describing how GET requests are processed
- * @param {RequestHandlerFunction|QueryAndBodyMethodOptions} options.post Request handler or
+ * @param {RequestHandlerFunction|MethodOptions} [options.post] Request handler function or
  *    config object describing how POST requests are processed
- * @param {RequestHandlerFunction|QueryAndBodyMethodOptions} options.put Request handler or
+ * @param {RequestHandlerFunction|MethodOptions} [options.put] Request handler function or
  *    config object describing how PUT requests are processed
- * @param {RequestHandlerFunction|QueryAndBodyMethodOptions} options.patch Request handler or
+ * @param {RequestHandlerFunction|MethodOptions} [options.patch] Request handler function or
  *    config object describing how PATCH requests are processed
- * @param {RequestHandlerFunction|QueryMethodOptions} options.delete Request handler or
+ * @param {RequestHandlerFunction|MethodOptions} [options.delete] Request handler function or
  *    config object describing how DELETE requests are processed
+ * @param {ErrorHandlerFunction} [options.errorHandler] Error handler function
  */
 module.exports = options => async (req, res) => {
+  const methodName = req.method.toLowerCase();
+  const method = options[methodName];
   try {
-    const methodName = req.method.toLowerCase();
-    const method = options[methodName];
-
     if (!method) throw new ApiError(METHOD_NOT_ALLOWED);
 
     let { query, body } = req;
@@ -52,45 +46,28 @@ module.exports = options => async (req, res) => {
       res.json(result);
     }
   } catch (err) {
-    if (err instanceof ValidationError) {
-      const { message, errors } = err;
-      res.status(BAD_REQUEST).send({ message, errors });
-    } else if (err instanceof ApiError) {
-      const { httpStatusCode, message } = err;
-      res.status(httpStatusCode).send({ message });
-    } else {
-      // eslint-disable-next-line no-console
-      console.log(err.stack);
-      res.status(INTERNAL_SERVER_ERROR).send({ message: getStatusText(INTERNAL_SERVER_ERROR) });
-    }
+    const handleError = options.errorHandler || method.errorHandler || defaultErrorHandler;
+    handleError({ err, res });
   }
 };
 
 /**
- * @typedef {Object} QueryMethodOptions
- * @property {Object} options.get.querySchema Schema to validate the request query.
+ * @typedef {Object} MethodOptions
+ * @property {Object} [options.querySchema] Schema to validate the request query.
  *    Can be:
  *      - a plain JS object for brevity (in which case it will be converted to a yup object)
  *      - a yup object for complex cases (i.e. when you need to add `.noUnknown()` modifier)
- * @property {RequestHandlerFunction} options.get.handler Request handler
- */
-
-/**
- * @typedef {Object} QueryAndBodyMethodOptions
- * @property {Object} options.get.querySchema Schema to validate the request query.
+ * @property {Object} [options.bodySchema] Schema to validate the request body.
  *    Can be:
  *      - a plain JS object for brevity (in which case it will be converted to a yup object)
  *      - a yup object for complex cases (i.e. when you need to add `.noUnknown()` modifier)
- * @property {Object} options.get.bodySchema Schema to validate the request body.
- *    Can be:
- *      - a plain JS object for brevity (in which case it will be converted to a yup object)
- *      - a yup object for complex cases (i.e. when you need to add `.noUnknown()` modifier)
- * @property {RequestHandlerFunction} options.get.handler Request handler
+ * @property {RequestHandlerFunction} options.handler Request handler function
+ * @property {ErrorHandlerFunction} options.errorHandler Error handler function
  */
 
 /**
  * @callback RequestHandlerFunction
- * @param {RequestHandlerFunctionParameters} options Request handler parameters
+ * @param {RequestHandlerFunctionParameters} options Request handler function parameters
  * @returns {Object|Promise<Object>}
  */
 
@@ -99,4 +76,15 @@ module.exports = options => async (req, res) => {
  * @property {Object} query Request query
  * @property {Object} body Request body
  * @property {Object} req Request object
+ */
+
+/**
+ * @callback ErrorHandlerFunction
+ * @param {ErrorHandlerFunctionParameters} options Error handler function parameters
+ */
+
+/**
+ * @typedef {Object} ErrorHandlerFunctionParameters
+ * @property {Object} err Error
+ * @property {Object} res Response object
  */
