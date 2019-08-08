@@ -53,16 +53,16 @@ module.exports = options => async (req, res) => {
 
 /**
  * @typedef {Object} MethodOptions
- * @property {Object} [options.querySchema] Schema to validate the request query.
+ * @property {Object} querySchema Schema to validate the request query.
  *    Can be:
  *      - a plain JS object for brevity (in which case it will be converted to a yup object)
  *      - a yup object for complex cases (i.e. when you need to add `.noUnknown()` modifier)
- * @property {Object} [options.bodySchema] Schema to validate the request body.
+ * @property {Object} bodySchema Schema to validate the request body.
  *    Can be:
  *      - a plain JS object for brevity (in which case it will be converted to a yup object)
  *      - a yup object for complex cases (i.e. when you need to add `.noUnknown()` modifier)
- * @property {RequestHandlerFunction} options.handler Request handler function
- * @property {ErrorHandlerFunction} options.errorHandler Error handler function
+ * @property {RequestHandlerFunction} handler Request handler function
+ * @property {ErrorHandlerFunction} errorHandler Error handler function
  */
 
 /**
