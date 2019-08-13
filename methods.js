@@ -18,7 +18,8 @@ const defaultErrorHandler = require('./defaultErrorHandler');
  *    config object describing how PATCH requests are processed
  * @param {RequestHandlerFunction|MethodOptions} [options.delete] Request handler function or
  *    config object describing how DELETE requests are processed
- * @param {ErrorHandlerFunction} [options.errorHandler] Error handler function
+ * @param {BeforeRequestHandlerFunction} [options.beforeRequest] Before request handler function
+ * @param {ErrorHandlerFunction} [options.onError] Error handler function
  */
 module.exports = options => async (req, res) => {
   const methodName = req.method.toLowerCase();
@@ -26,10 +27,23 @@ module.exports = options => async (req, res) => {
   try {
     if (!method) throw new ApiError(METHOD_NOT_ALLOWED);
 
-    let { query, body } = req;
+    let beforeRequestHandler;
+    let requestHandler;
 
-    const handler = typeof method === 'function' ? method : method.handler;
+    if (typeof method === 'function') {
+      beforeRequestHandler = options.beforeRequest;
+      requestHandler = method;
+    } else {
+      const { beforeRequest, onRequest } = method;
+      if (!onRequest) throw new ApiError(METHOD_NOT_ALLOWED);
+      beforeRequestHandler = beforeRequest || options.beforeRequest;
+      requestHandler = onRequest;
+    }
+
+    if (beforeRequestHandler) beforeRequestHandler(req);
+
     const { querySchema, bodySchema } = method;
+    let { query, body } = req;
 
     if (querySchema || bodySchema) {
       ({ query, body } = await object({
@@ -38,7 +52,7 @@ module.exports = options => async (req, res) => {
       }).validate({ query, body }, { abortEarly: false }));
     }
 
-    const result = await handler({ query, body, req });
+    const result = await requestHandler({ query, body, req });
 
     if (result === undefined || result === null) {
       res.status(method === 'POST' ? CREATED : NO_CONTENT).send(null);
@@ -46,7 +60,7 @@ module.exports = options => async (req, res) => {
       res.json(result);
     }
   } catch (err) {
-    const handleError = options.errorHandler || method.errorHandler || defaultErrorHandler;
+    const handleError = options.onError || method.onError || defaultErrorHandler;
     handleError({ err, res });
   }
 };
@@ -61,8 +75,14 @@ module.exports = options => async (req, res) => {
  *    Can be:
  *      - a plain JS object for brevity (in which case it will be converted to a yup object)
  *      - a yup object for complex cases (i.e. when you need to add `.noUnknown()` modifier)
- * @property {RequestHandlerFunction} handler Request handler function
- * @property {ErrorHandlerFunction} errorHandler Error handler function
+ * @property {BeforeRequestHandlerFunction} beforeRequest Before request handler function
+ * @property {RequestHandlerFunction} onRequest Request handler function
+ * @property {ErrorHandlerFunction} onError Error handler function
+ */
+
+/**
+ * @callback BeforeRequestHandlerFunction
+ * @param {import('next').NextApiRequest} req Request object
  */
 
 /**
@@ -75,7 +95,7 @@ module.exports = options => async (req, res) => {
  * @typedef {Object} RequestHandlerFunctionParameters
  * @property {Object} query Request query
  * @property {Object} body Request body
- * @property {Object} req Request object
+ * @property {import('next').NextApiRequest} req Request object
  */
 
 /**
@@ -86,5 +106,5 @@ module.exports = options => async (req, res) => {
 /**
  * @typedef {Object} ErrorHandlerFunctionParameters
  * @property {Object} err Error
- * @property {Object} res Response object
+ * @property {import('next').NextApiResponse} res Response object
  */

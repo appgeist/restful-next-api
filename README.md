@@ -14,7 +14,7 @@ Build restful [API methods for Next.js > 9](https://nextjs.org/docs#api-routes) 
 ## Installation
 
 - Install with `npm i @appgeist/restful-next-api` or `yarn add @appgeist/restful-next-api`;
-- Run `npx install-peerdeps -do @appgeist/restful-next-api` to make sure you have the necessary `peerDependencies` (`yup` and `http-status-codes`) in your project.
+- Run `npx install-peerdeps -do @appgeist/restful-next-api` to make sure you have the necessary `peerDependencies` (`yup`, `http-status-codes` and of course `next`) in your project.
 
 ## Usage example
 
@@ -49,7 +49,7 @@ export default methods({
         .required()
     }).noUnknown(),
 
-    handler: async ({ body, req }) => {
+    onRequest: async ({ body, req }) => {
       const product = await Product.create(body);
       await log(
         `Product ${product.id} created at ${new Date()} by user ${req.userId}`
@@ -97,7 +97,7 @@ export default methods({
         .required()
     }).noUnknown(),
 
-    handler: async ({ body, req }) => {
+    onRequest: async ({ body, req }) => {
       const product = await Product.create(body);
       await log(
         `Product ${product.id} updated at ${new Date()} by user ${req.userId}`
@@ -114,7 +114,7 @@ export default methods({
         .required()
     },
 
-    handler: async ({ query: { id }, req }) => {
+    onRequest: async ({ query: { id }, req }) => {
       const { userId } = req;
       const acl = await User.getACL(userId);
       if (!acl.includes("deleteProduct")) throw new ApiError(FORBIDDEN);
@@ -137,7 +137,34 @@ A `querySchema`/`bodySchema` definition can be:
 
 ## Request flow
 
-1. The data for each request is validated (and transformed) according to the specified `querySchema` and `bodySchema` definitions. See `yup` [readme](https://github.com/jquense/yup) for more information on data validation and transformation.
+1. For each request, the `beforeRequest` handler is invoked if present:
+
+   ```js
+   import methods from "@appgeist/restful-next-api";
+
+   export default methods({
+     get: {
+       beforeRequest: () => {
+         console.log('Before GET');
+       },
+       onRequest: () => {
+         console.log('On GET request');
+       };
+     },
+
+     delete: () => {
+       console.log('On DELETE request');
+     },
+
+     beforeRequest: () => {
+       // ...
+       console.log('Before REQUEST');
+       // ...
+     }
+   });
+   ```
+
+2. If `beforeRequest` completes without throwing an error, the data for each request is validated (and transformed) according to the specified `querySchema` and `bodySchema` definitions. See `yup` [readme](https://github.com/jquense/yup) for more information on data validation and transformation.
 
    - **If validation fails, the request handler invocation is skipped** and a `400` (`BAD_REQUEST`) response is sent to the client with a `JSON` body type structured like so:
 
@@ -151,40 +178,44 @@ A `querySchema`/`bodySchema` definition can be:
    }
    ```
 
-   - If validation succeeds, the `handler` method will be invoked.
+   - If validation succeeds, the `onRequest` handler will be invoked.
 
-2. The `handler` method:
+3. The `onRequest` handler:
 
    ```js
-   function handler({ query, body, req }) => { /* do work and return data */ };
+   function onRequest({ query, body, req }) => { /* do work and return data */ };
    ```
 
    ...or
 
    ```js
-   async function handler({ query, body, req }) => { /* do work and return Promise which resolves to data */ };
+   async function onRequest({ query, body, req }) => { /* do work and return Promise which resolves to data */ };
    ```
 
-   This method can return an object or a Promise resolving to an object that will be serialized to `JSON` and sent back to the client with a `200` (`OK`) status code. If `handler` returns `undefined` or `null`, an empty response will be sent with a `201` (`CREATED`) header for `POST` requests and `204` (`NO_CONTENT`) for non-`POST` request.
+   This method can return an object or a Promise resolving to an object that will be serialized to `JSON` and sent back to the client with a `200` (`OK`) status code. If `onRequest` returns `undefined` or `null`, an empty response will be sent with a `201` (`CREATED`) header for `POST` requests and `204` (`NO_CONTENT`) for non-`POST` request.
 
-3. Default error handling
+4. Default error handling
 
-   If `handler` throws an `ApiError` (also exported by `@appgeist/restful-next-api`), a specific http status code is returned to the client. For instance, the following code will result in a `404` (`NOT_FOUND`) being sent to the client:
+   If `beforeRequest` or `onRequest` throws an `ApiError` (also exported by `@appgeist/restful-next-api`), a specific http status code is returned to the client. For instance, the following code will result in a `403` (`FORBIDDEN`) being sent to the client:
 
    ```js
-   import { methods, ApiError } from "@appgeist/restful-next-api";
-   import { NOT_FOUND } from "http-status-codes";
+   import methods, { ApiError } from "@appgeist/restful-next-api";
+   import { FORBIDDEN } from "http-status-codes";
 
    export default methods({
-     get: () => {
+     get: {
        // ...
-       throw new ApiError(NOT_FOUND);
+       onRequest: () => {
+         // ...
+         throw new ApiError(FORBIDDEN);
+         // ...
+       }
        // ...
      }
    });
    ```
 
-   Other error types are treated as `500` / `INTERNAL_SERVER_ERROR` and are logged to the console.
+   Other error types are treated as `500` / `INTERNAL_SERVER_ERROR` and are also logged to the console.
 
 ## Custom error handling
 
@@ -194,25 +225,25 @@ You can override the default error handling mechanism by providing a custom erro
 export default methods({
   patch: {
     // querySchema: ..., bodySchema: ...,
-    handler: ({ body, req }) => {
+    onRequest: ({ body, req }) => {
       /* handle patch request */
     },
 
     // Error handler for patch requests
-    errorHandler: ({ res, err }) => {
+    onError: ({ res, err }) => {
       res.status(500).send("Error while trying to patch");
     }
   },
 
   delete: {
     // querySchema: ...,
-    handler: ({ query: { id }, req }) => {
+    onRequest: ({ query: { id }, req }) => {
       /* handle delete request */
     }
   },
 
   // Generic error handler - this will also handle errors for delete requests
-  errorHandler: ({ res, err }) => {
+  onError: ({ res, err }) => {
     res.status(500).send("Error");
   }
 });
