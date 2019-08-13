@@ -40,7 +40,7 @@ module.exports = options => async (req, res) => {
       requestHandler = onRequest;
     }
 
-    if (beforeRequestHandler) beforeRequestHandler(req);
+    if (beforeRequestHandler) await beforeRequestHandler(req);
 
     const { querySchema, bodySchema } = method;
     let { query, body } = req;
@@ -83,6 +83,7 @@ module.exports = options => async (req, res) => {
 /**
  * @callback BeforeRequestHandlerFunction
  * @param {import('next').NextApiRequest} req Request object
+ * @returns {Promise}
  */
 
 /**
