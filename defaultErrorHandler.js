@@ -8,8 +8,8 @@ module.exports = ({ err, res }) => {
     const { message, errors } = err;
     res.status(BAD_REQUEST).send({ message, errors });
   } else if (err instanceof ApiError) {
-    const { httpStatusCode, message } = err;
-    res.status(httpStatusCode).send({ message });
+    const { status, message } = err;
+    res.status(status).send({ message });
   } else {
     res.status(INTERNAL_SERVER_ERROR).send({ message: getStatusText(INTERNAL_SERVER_ERROR) });
     // eslint-disable-next-line no-console
