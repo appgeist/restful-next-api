@@ -21,7 +21,7 @@ const defaultErrorHandler = require('./defaultErrorHandler');
  * @param {BeforeRequestHandlerFunction} [options.beforeRequest] Before request handler function
  * @param {ErrorHandlerFunction} [options.onError] Error handler function
  */
-module.exports = options => async (req, res) => {
+module.exports = (options) => async (req, res) => {
   const methodName = req.method.toLowerCase();
   const method = options[methodName];
   try {
