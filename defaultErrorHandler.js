@@ -13,6 +13,6 @@ module.exports = ({ err, res }) => {
   } else {
     res.status(INTERNAL_SERVER_ERROR).send({ message: getStatusText(INTERNAL_SERVER_ERROR) });
     // eslint-disable-next-line no-console
-    console.log(err.stack);
+    console.error(util.inspect(err, true, 5));
   }
 };
