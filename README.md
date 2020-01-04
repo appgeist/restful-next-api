@@ -149,7 +149,7 @@ A `querySchema`/`bodySchema` definition can be:
        },
        onRequest: () => {
          console.log('On GET request');
-       };
+       },
      },
 
      delete: () => {
