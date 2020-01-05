@@ -14,6 +14,6 @@ module.exports = ({ err, res }) => {
   } else {
     res.status(INTERNAL_SERVER_ERROR).send({ message: getStatusText(INTERNAL_SERVER_ERROR) });
     // eslint-disable-next-line no-console
-    console.error(util.inspect(err, true, 5));
+    console.error(util.inspect(err, false, 5));
   }
 };
