@@ -14,17 +14,17 @@ Build restful [API methods for Next.js > 9](https://nextjs.org/docs#api-routes) 
 ## Installation
 
 - Install with `npm i @appgeist/restful-next-api` or `yarn add @appgeist/restful-next-api`;
-- Run `npx install-peerdeps -do @appgeist/restful-next-api` to make sure you have the necessary `peerDependencies` (`yup`, `http-status-codes` and of course `next`) in your project.
+- Run `npx install-peerdeps -do @appgeist/restful-next-api` to make sure you have the necessary `peerDependencies` (`yup` and of course `next`) in your project.
 
 ## Usage example
 
 In `/pages/api/products.js`:
 
 ```js
-import { object, number, string } from "yup";
-import methods from "@appgeist/restful-next-api";
-import { Product, User } from "~/models";
-import { log } from "~/utils";
+import { object, number, string } from 'yup';
+import methods from '@appgeist/restful-next-api';
+import { Product, User } from '~/models';
+import { log } from '~/utils';
 
 export default methods({
   get: ({ query: { page } }) => Product.browse({ page }),
@@ -51,9 +51,7 @@ export default methods({
 
     onRequest: async ({ body, req }) => {
       const product = await Product.create(body);
-      await log(
-        `Product ${product.id} created at ${new Date()} by user ${req.userId}`
-      );
+      await log(`Product ${product.id} created at ${new Date()} by user ${req.userId}`);
       return product;
     }
   }
@@ -63,11 +61,11 @@ export default methods({
 In `/pages/api/products/[id].js`:
 
 ```js
-import { object, number, string } from "yup";
-import { FORBIDDEN } from "http-status-codes";
-import methods, { ApiError } from "@appgeist/restful-next-api";
-import { Product } from "~/models";
-import { log } from "~/utilities";
+import { object, number, string } from 'yup';
+import { FORBIDDEN } from 'http-status-codes';
+import methods, { ApiError } from '@appgeist/restful-next-api';
+import { Product } from '~/models';
+import { log } from '~/utilities';
 
 export default methods({
   patch: {
@@ -99,9 +97,7 @@ export default methods({
 
     onRequest: async ({ body, req }) => {
       const product = await Product.create(body);
-      await log(
-        `Product ${product.id} updated at ${new Date()} by user ${req.userId}`
-      );
+      await log(`Product ${product.id} updated at ${new Date()} by user ${req.userId}`);
       return product;
     }
   },
@@ -117,7 +113,7 @@ export default methods({
     onRequest: async ({ query: { id }, req }) => {
       const { userId } = req;
       const acl = await User.getACL(userId);
-      if (!acl.includes("deleteProduct")) throw new ApiError(FORBIDDEN);
+      if (!acl.includes('deleteProduct')) throw new ApiError(FORBIDDEN);
       await Product.destroy(id);
       await log(`Product ${id} deleted at ${new Date()} by user ${userId}`);
     }
@@ -140,7 +136,7 @@ A `querySchema`/`bodySchema` definition can be:
 1. For each request, the `beforeRequest` handler is invoked if present:
 
    ```js
-   import methods from "@appgeist/restful-next-api";
+   import methods from '@appgeist/restful-next-api';
 
    export default methods({
      get: {
@@ -149,7 +145,7 @@ A `querySchema`/`bodySchema` definition can be:
        },
        onRequest: () => {
          console.log('On GET request');
-       },
+       }
      },
 
      delete: () => {
@@ -171,10 +167,7 @@ A `querySchema`/`bodySchema` definition can be:
    ```json
    {
      "message": "There were 2 validation errors",
-     "errors": [
-       "body.price must be an integer",
-       "body.inventoryItems is required"
-     ]
+     "errors": ["body.price must be an integer", "body.inventoryItems is required"]
    }
    ```
 
@@ -199,8 +192,8 @@ A `querySchema`/`bodySchema` definition can be:
    If `beforeRequest` or `onRequest` throws an `ApiError` (also exported by `@appgeist/restful-next-api`), a specific http status code is returned to the client. For instance, the following code will result in a `403` (`FORBIDDEN`) being sent to the client:
 
    ```js
-   import methods, { ApiError } from "@appgeist/restful-next-api";
-   import { FORBIDDEN } from "http-status-codes";
+   import methods, { ApiError } from '@appgeist/restful-next-api';
+   import { FORBIDDEN } from 'http-status-codes';
 
    export default methods({
      get: {
@@ -231,7 +224,7 @@ export default methods({
 
     // Error handler for patch requests
     onError: ({ res, err }) => {
-      res.status(500).send("Error while trying to patch");
+      res.status(500).send('Error while trying to patch');
     }
   },
 
@@ -244,7 +237,7 @@ export default methods({
 
   // Generic error handler - this will also handle errors for delete requests
   onError: ({ res, err }) => {
-    res.status(500).send("Error");
+    res.status(500).send('Error');
   }
 });
 ```
