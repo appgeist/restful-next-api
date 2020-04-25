@@ -1,6 +1,6 @@
 {
   "name": "@appgeist/restful-next-api",
-  "version": "1.5.5",
+  "version": "1.5.6",
   "description": "Build restful API methods for Next.js > 9 and validate the incoming requests with yup",
   "keywords": [
     "rest",
